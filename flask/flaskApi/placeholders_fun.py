@@ -77,7 +77,7 @@ def function_camelcase():
             })
 
 # QN3 Create an API to update completed status to false for given userid.
-@app.route("/api/update/<int:userId>", methods = ['PUT'])
+@app.route("/api/update/<int:userId>", methods = ['GET','POST','PUT'])
 def function_update(userId):
     if request.method=='PUT':
         try:
