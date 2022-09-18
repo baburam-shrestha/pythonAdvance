@@ -1,0 +1,88 @@
+
+1. Introduction to Databases
+Welcome to Introduction to Databases in Python. My name is Jason Myers and I'm a software engineer whose area of expertise is in developing data analytics platforms. Relational databases are the foundation of many applications and data systems widely used today. They are also extremely common in the world of data science and analytics.
+
+2. A database consists of tables
+Relational databases are made up of tables which store our data. For example, here are a couple of tables from the Census database that we'll be using in this course. The census table on the left holds location and demographic information along with population counts from the census data. Meanwhile the state_fact table on the right holds additional details about the states themselves such as the abbreviation and type of the location.
+
+3. Table consist of columns and rows
+Tables themselves consist of columns and rows. The columns of a database define the name of an element or field in our data, such as the age column highlighted here. They also specify the data type, such as string or an integer, which we'll talk more about in a later section.
+
+4. Table consist of columns and rows
+All of the data in a table is stored within the rows of a table. The row highlighted here contains the population counts in 2000 and 2008 for newborn females in New York state.
+
+5. Tables can be related
+Tables can also be "related" to one another by a column acting as a key or bridge that tells it which piece of data it is associated with in another table. This feature is where relational databases get the relational part of their name. Here, we've highlighted the state column in the census table and the name column in the state_fact table. We can use this relationship to get additional information about the relevant state, such as its abbreviation, for any row in the census table. The structure of tables in relational databases, along with how they can be related as outlined here, is known as the relational model.
+
+6. Let's practice!
+We'll soon learn how to extract information from such a database, but first, let's test your knowledge of the relational model with a multiple choice question.
+
+Relational model
+Which of the following is not part of the relational model?
+
+Possible Answers:
+Tables
+Columns
+Rows
+Dimensions
+Relationships
+
+
+
+1. Connecting to your database
+In the Python world, there are several great tools that we can use when working with databases.
+
+2. Meet SQLAlchemy
+One of those is SQLAlchemy that we will be using throughout this course. SQLAlchemy will allow us to generate SQL queries by writing Python code. You should still consider learning how to write queries in SQL as well. SQLAlchemy has two main components. The part we will be focusing on is often referred to as "core" part of SQLAlchemy. It's really focused around the relational model of the database. Additionally, there is the Object Relational Model or ORM part of SQLAlchemy that is really focused around data models and classes that you as a programmer create.
+
+3. There are many types of databases
+There are many different types of databases, and each database type has its own quirks and unique capabilities. You'll commonly find SQLite, PostgreSQL, MySQL, Microsoft SQL Server, and Oracle when working with data. SQLAlchemy provides a way to operate across all of these database types in a consistent manner.
+
+4. Connecting to a database
+To connect to a database, we need a way to talk to it, and an engine provides that common interface. To create an engine, we import the create_engine function from sqlalchemy; we then use the create_engine function and supply it a connection string that provides the details needed to connect to a database. Finally once we have an engine, we are ready to make a connection using the connect method on the engine. It's worth noting that SQLAlchemy won't actually make the connection until we give it some work to execute. So to review, an engine is the common interface to the database, which requires a connection string to provide the details used to find and connect to the database.
+
+5. A word on connection strings
+Before we go any further, let's talk a bit more about connection strings. In their simplest form, they tell us what kind of database we are talking to and how we should access it. In this example, you can see that we are using the sqlite database driver
+
+6. A word on connection strings
+and the database file named census_nyc-dot-sqlite which is in the current directory.
+
+7. What's in your database?
+Now that we have an engine and a connection, we need to know what tables are in the database. We'll start again by importing the create_engine function and creating an engine to our database. Finally, we can use the table_names method of the engine which returns a list of tables.
+
+8. Reflection
+Once we know what table we want to work on, we need a way to access that table with python. To do that we are going to use a handy process called reflection, which reads the database and builds a Table object that we can use in our code. We already have created our engine, so we begin by importing the MetaData and Table objects needed for reflection. The MetaData object is a catalog that stores database information such as tables so we don't have to keep looking them up. To reflect the table, we initialize a MetaData object. Next, we use the SQLAlchemy Table object and provide the table name we got earlier from the table_names method. We also supply our metadata instance, and then instruct it to autoload the table using the engine. Finally, we can use the function repr to view the details of our table that we stored as census. This allows us to see the names of the columns, such as the 'state' and 'sex' columns, along with their types, such as VARCHAR and INTEGER. This process of reflection may seem a bit of an overhead, but it will make understanding your databases and extracting information from them far easier downstream.
+
+9. Let's practice!
+Now it's your turn to practice writing connection strings, connecting to databases and reflecting tables. Then we'll be back here writing our first SQL queries.
+
+
+1. Introduction to SQL queries
+The SQL query language can be used to do anything within the database.
+
+2. SQL Statements
+It can select data, insert new data, update existing data, and delete it. It can also be used to create, alter and delete tables and columns. The first SQL statement we'll learn is the select statement, which provides the basic method of extracting information from your database.
+
+3. Basic SQL querying
+The general syntax of a select statement is select COLUMNS from TABLE CONDITIONS. For example, we can select the pop2008 column from the people table. We can also select all the columns from the people table with an asterisk. Let's execute this last query.
+
+4. Basic SQL querying
+We'll begin by importing create_engine and creating an engine. Next, we will establish a connection by using the connect method on the engine. Then we can define our select statement and pass it to the execute method on the connection. This gives us an object we can use to fetch the results, which we assign to the variable results_proxy. Then we tell results_proxy to fetch all the results via the fetchall method. Now results will contain all of the data from our people table. Let's pause for just a moment and look at that object that the execute method gave us.
+
+5. ResultProxy vs ResultSet
+That object is called a ResultProxy and it can be used in a variety of different ways to get the data returned by our query. When we use a fetch method, such as fetchall, on the ResultProxy, we get a ResultSet that contains the actual data we asked for in the query. This separation between the ResultProxy and the ResultSet allows us to fetch as much or as little data as we desire. We'll explore this more in a later section. Let's learn how to work with a ResultSet.
+
+6. Handling ResultSets
+In this example we are using the results from the prior query. We'll start by getting the first_row of the results using an index of 0. By printing the first row, we can see the data it contains. If we want to know what columns are in the row, we can find out by using the keys method. Finally, we print the value of the state column from the first row, by using the column name as an attribute on the row object.
+
+7. SQLAlchemy to build queries
+In the prior query example, we wrote a normal SQL statement as a string; however, manipulating a string to build more complex statements can be very overwhelming. The beauty of SQLAlchemy is that it allows us to assemble these complex statements in a Pythonic way. Pythonic refers to code that adheres to the idioms of Python's common guidelines and expresses its intent in a highly readable way. SQLAlchemy also hides the difference between database types so we can focus on the data we want to work with instead of the differences we might encounter in each database type. Let's rebuild the same query using SQLAlchemy.
+
+8. SQLAlchemy querying
+The first three steps of creating an engine and establishing a connection will be the same. After that, we will need to initialize our metadata and reflect the table as we did previously. Then in line 7, we build our select statement. Hang tight we'll talk more about this in a second. Finally, we execute the statement and fetch all the results.
+
+9. SQLAlchemy select statement
+The SQLAlchemy select statement works the same as a SQL select statement, and in its most basic form takes a list of Column or Table objects. For example, stmt equals select census will select all the columns of all the rows in the census table. SQLAlchemy generates the same SQL statement we wrote by hand. We can see that by using the print function on the statement which outputs SELECT * FROM census.
+
+10. Let's practice!
+Now it's your turn write several SQL queries, both as raw SQL and in the more Pythonic way using SQLAlchemy. We'll be continuing to use the US Census database. Let's practice.

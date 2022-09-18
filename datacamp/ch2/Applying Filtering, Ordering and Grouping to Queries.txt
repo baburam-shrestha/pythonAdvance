@@ -1,0 +1,97 @@
+
+1. Filtering and targeting data
+Now that we have the basics of connecting to the database and making a query down, it's time to dig deeper into select queries. So far, we've selected all the rows from a table. However, there is a way to filter rows by their values in particular columns using a where() clause on our select statements.
+
+2. Where clauses
+For example, let's say that we want to select all the records for the state of California. We start with the same select statement and add a where clause onto it that specifies that the value in the 'State' column must be equal to California. We then execute the statement and fetch all the results, as we have done before. We wrap up by looping over the results and print the state and age column from each row.
+
+3. Where clauses
+More generally, where clauses restrict data by performing an evaluation of a condition. Often this is a column that we want to compare with a value or another column. In the prior example, we tested equality of column values with 'California'. In addition to equality, with numerical values, there are also operators for greater than, less than and the other standard math comparison operators.
+
+4. Expressions
+In addition to such comparisons, there are also SQL expressions that provide more complex conditions than simple operators. A few common expression are in_() which match the column's value against a list, like() which matches the column's value against a partial value with wild cards, and between() which checks to see if the column's value is between two supplied values. There are many others as well. These expressions are available as methods on our Column objects. We can use such expressions to do things such as find all the state names that start with 'New'. In fact, Let's do just that.
+
+5. Expressions
+We start with the same basic select statement and add a where clause with the state column and use the startswith method on that column. We then loop over the ResultProxy and print the state and population in the year 2000. Note that we didn't call a fetch method in this example. This is a feature of SQLAlchemy to allow the ResultProxy to be used as the target of a loop.
+
+6. Conjunctions
+We can also use conjunctions which allow us to have multiple criteria in a where clause. The conjunctions are and_(), not_(), and or_() and they work just like they would in a sentence. Conjunctions can be useful for getting exactly the data we want. You might notice that these methods have an _ in their names. This is to avoid conflicting with the Python methods of the same name. It's also possible to nest multiple conjunctions to get extremely specific about the data we select, but that's not covered in this class. Let's see an example usage of conjunctions.
+
+7. Conjunctions
+For this example, we want to get all the records for California and New York. I could do this in a few different ways, but in this case I want to use the or_() conjunction. After we build our initial statement, we append a where clause with a single argument, which is the or_ conjunction; we also pass two arguments to or_, which match the states of California and New York, respectively, I then execute the statement and print the columns I want to see.
+
+8. Let's practice!
+Now it's your turn to filter your SQL queries in order to extract the specific information of interest. Get coding.
+
+
+1. Ordering query results
+Often when we are building queries,
+
+2. Order by clauses
+we will want to order the return data alphabetically, numerically, or by dates. It is easy to do so in SQLAlchemy by using the order_by() method on any statement, which by default orders from lowest to highest. In the case of strings, this means in alphabetical order.
+
+3. Order by ascending
+Initially when I selected the state field from all the records in a prior query, I got Illinois back as the first result. I really want the states in alphabetical order. To do that built a select statement for the state column of the census table. Then I append an order_by clause on my select statement that targets the state column. After executing that statement, I can see that the results now start with Alabama.
+
+4. Order by descending
+If we want to sort from highest to lowest, we can do so by wrapping a column in the order_by() clause with the desc() function, which is short for 'descending' and will reverse the natural sort order and make it highest to lowest. You'll get to practice using the desc() function in the interactive exercises that follow this video.
+
+5. Order by multiple
+Often we might want to order by one column such as district and then within each district order by age. We can accomplish this by passing multiple columns to the order_by() method and it will fully sort the first column, then within the rows that have matching values for the first column it sorts by the second column and so on until all sort columns are satisfied.
+
+6. Order by multiple
+In this example, I want to get all the states in alphabetical order. Then within each state, I want to get the genders in alphabetical order as well. To demonstrate this, I've already performed a select statement to get the state and sex from the census table where it's in the wrong order. Next, we build a select statement for the state and sex columns. Then, we append an order by clause that targets the state and sex columns. Now I can see that after executing the query, we get Alabama and Female as the first state and sex combo in our result set.
+
+7. Let's practice!
+Let's practice this with our census data.
+
+
+
+1. Counting, summing, and grouping data
+Often, we want to be able to count the data we are working with or calculate the sum of a column in our data.
+
+2. SQL functions
+Things like count and sum are SQL aggregation functions, and they can be found in the func sqlalchemy module. It's far more efficient to let SQL perform these functions than to get all the results and loop over them in Python. We call them aggregation functions because they collapse multiple records into one.
+
+3. Sum example
+For example what if I wanted to get a sum of the census pop2008 column for all the records? After I had created an engine, metadata, and reflected the table, I would import the func module. Then in my select statement where I would normally just put the column, I put the column wrapped by func-dot-sum. Then I use the scalar fetch method to get back just a value and print it. It's important not to import the sum function directly, because it will conflict with Python's built-in sum function.
+
+4. Group by
+Often when using a function, we want to do so by some grouping of another column. For example, we may want to get a sum of the population aggregated by sex in the census database. To do so, we can use a group_by() clause to specify the data we want to aggregate by.
+
+5. Group by
+To get a sum of the population by gender in the census database, we would select the sex column and the func.sum of the pop2008 column. Then we would append a group by clause that targets the sex column. Then when we execute the query and get the results, we will have the data summed by the sex value of each record.
+
+6. Group by
+Much like order_by, the group_by clause can accept multiple columns and will group with in the groups from left to right. Every column in the select statement must in the group_by clause or wrapped in a function such as sum or count.
+
+7. Group by multiple
+We could go a step further and group by both sex and age to get the number of people for each sex by age in the 2008 population. We'd just add the age column to both the select statement and the group_by clause as shown here.
+
+8. Handling ResultSets from functions
+When we use a function such as sum or count, the column name that represents the function in our results is set to a placeholder. For example, if we had a count function in our select statement it would appear as the count_1 column in the result set. This can make it difficult to handle the result set; however, we can use the label() method on a function to give the output column a specific name.
+
+9. Using label()
+So if we wanted to calculate the population by sex, you can see that it returns a sum_1 column in the result set. if we wanted to call that pop2008sum in the result set, we would use the label method on our func-dot-sum clause. Then append the usual group by clause onto the statement, and after executing the query, I would be able to use that name when accessing the components of each result in the result set.
+
+10. Let's practice!
+Let's put this to use.
+
+
+1. SQLAlchemy and pandas for visualization
+Let's take a breather for a second, and look at how we might use SQLAlchemy in a data science context with pandas.
+
+2. SQLAlchemy and pandas
+A SQLAlchemy ResultSet can be directly supplied to a DataFrame; however, we need to supply the column names separately. Let's experiment with this.
+
+3. DataFrame example
+We can import pandas as pd which is a common convention. Then we are going to create a DataFrame and supply it a SQLAlchemy ResultSet. Next, we set the DataFrame's columns to the keys in our first result. Finally, we can print the DataFrame to validate that we got the result we desired. From this point, I could do anything I would normally do with a Pandas DataFrame such as creating a figure and visualizing the results.
+
+4. Graphing
+There is nothing special about a DataFrame created from a ResultSet, so we can graph it the same way we would any DataFrame.
+
+5. Graphing example
+For example, We can import the pyplot module from matplotlib. Next, if we wanted make a horizontal bar chart of population count by age. We can do that with the plot and barh methods on the DataFrame. In this case, I'm limiting the data to just 10 rows from the DataFrame. Finally, we instruct matplotlib to display the plot. We just did a simple graph here, but you can tweak the graphs to be as fancy as you like with matplotlib!
+
+6. Let's practice!
+It's your turn to play.
