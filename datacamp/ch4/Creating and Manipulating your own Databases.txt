@@ -1,0 +1,91 @@
+
+1. Creating databases and tables
+With a solid understanding of querying, it's now time to learn how to create databases and tables.
+
+2. Creating databases
+Creating databases is different for every database type, and it often requires the use of a command line tool or management application. All these tools are beyond the scope of this class. However with SQLite, if you supply a filename that does not exist to the create_engine method, it will create that file which creates the database.
+
+3. Building a table
+In this example, we are creating a table to store data about our employees. We've already created an engine and metadata. We want to store the employee's id, name, salary, and active status. We start by importing everything we need. This includes the Table and Column objects along with any SQL Data types we want to use in our columns. There are many SQL Data types, and the SQLAlchemy documentation is a great place to see all the ones that are available. Next, we use the Table object to create a table named employees, in our metadata with a few columns. The first column is the id column and we made it an integer type to store the employees id. Next we have the name column which is a String that can be up to 255 characters long. Next we have the salary column which is a decimal type to hold the employees yearly salary. The last column is the active column which is a Boolean to let us know if they are still actively employed. We store that table object as employees. Now, we use the create_all method on the metadata objects and pass it the engine to create the table in the database itself. Finally, we use the table_names method of the engine to verify that the table was created.
+
+4. Creating tables
+As you saw in the prior example, creating tables can be done with SQLAlchemy just like queries. We will still use the Table object similar to how we used it for reflection. We'll just remove the autoload keyword arguments and replace them with the Column objects we want to exist in the table. Once we have our table object, we can use the metadata's create_all method and the engine to create the table in the actual database. While it's easy to create tables with SQLAlchemy, if you want to make changes to an existing table structure, such as adding or removing columns, you'll need to build raw SQL ALTER statements or use a tool like Alembic, which is outside the scope of this course.
+
+5. Creating tables - additional column options
+In addition to Columns having a type, they can also have constraints and defaults that are additional keyword arguments to the Column object. With constraints we can require that a column be unique or specify that a column can not be empty or null. There other more complex constraints as well that can be used to require any Boolean condition you can imagine. Default sets the initial value of a field if one is not supplied during an insert statement. Let's create a table with some constraints.
+
+6. Building a table with additional options
+We're going to create the same employees table; however, we want to make sure the name column is unique and not allowed to be empty. We established a default salary of $100.00, and also set active to be True by default. Finally, we check to see what constraints are on the table using the constraints attribute. We can see that our desired constraints and defaults are in place.
+
+7. Let's practice!
+Time for you to create a few tables of your own.
+
+
+1. Inserting data into a table
+With our table created, we are ready to insert some data into the table.
+
+2. Adding data to a table
+We do this with an insert statement. Insert takes a table name as an argument, and then all the values we want to insert are added in a values clause as column=value pairs. The insert doesn't return any rows, so we don't need to use a fetch method after executing the statement. Let's insert a record into our employees table.
+
+3. Inserting one row
+After we've created the engine, established the connection, and created or reflected the table, we import the insert statement from sqlalchemy. Next, we build an insert statement for the employees table with the following values. We'll set the id column to 1, and the name column to Jason. We'll give Jason a salary of $1 and make him an active employee. With our insert statement built, we can now execute the statement and store the result proxy it returns. Remember the insert statement doesn't return any rows; however, we can use the rowcount attribute of the result proxy to see how many rows where inserted.
+
+4. Inserting multiple rows
+It is also possible to insert multiple records at one with an insert statement by building an insert statement without the values clause. Then we build a list of dictionaries to represent our column=value pairs for each record. Finally, we pass both the insert statement and the list of dictionaries to the connection's execute method which will insert all the records in the list. Let's add some more employees with a multiple insert statement.
+
+5. Inserting multiple rows
+We start by building an insert statement for the employees table without a values clause. Next, we build a list of dictionaries, one dictionary for each record we want to insert. I typically call this list values_list to make its purpose clear. Each dictionary has the columns and associated values we want to insert. We pass both the insert statement and the list of dictionaries to the execute method on connection. Again there is no need to call a fetch method since an insert returns no rows. Finally, we use the rowcount attribute of the result proxy to check how many records were inserted.
+
+6. Let's practice!
+Now it's time for you to try your hand at inserting data.
+
+
+1. Updating data in a table
+It's also possible to edit update data in a database.
+
+2. Updating data in a table
+This is done using the update statement. The update statement works just like an insert, but it has an additional where clause to determine which records will be updated. The values clause contains only the column=value pairs we want to change.
+
+3. Updating one row
+In this example, I want to make the employee with the ID of 3 an active employee. I start by importing the update statement from sqlalchemy. Next I build an update statement for the employees table that, uses a where clause to target employee 3 and then in the values clause sets them active. Next I execute the statement and print the rowcount to make sure that only 1 employee was updated.
+
+4. Updating multiple rows
+It's possible to update multiple records by having a where clause that would target multiple records. Because this is so easy to do, I always advise you to check the rowcount and make sure the right number of records were updated.
+
+5. Inserting multiple rows
+In this example, we need to set all active employees to be inactive and with a salary of 0. We start by building an update statement for the employees table with a where clause that matches all active employees. Then we update the active and salary columns with the changes. Next we execute the statement and finally print the rowcount to make sure I updated the proper number of employees.
+
+6. Correlated updates
+We have already restored all the employees back to the prior active status and previous salaries, and now we want to pay all our employees the same amount. We start by building a select statement to select the maximum salary we currently pay any employee. Next we build an update statement for the employees table without a where clause so it will update every record. In the values clause we set the salary column to the select statement. When we execute the statement, it will find the maximum salary in the table using the new_salary select statement and that maximum salary will be used as the value for the salary field in the update statement that affects every record in the table. We can see when we print the rowcount that it affected all three employees.
+
+7. Correlated updates
+When you use a select statement to get the value to be used in an update statement as we did in the previous example, this is called a Correlated Update. A correlated update is often used to select data from another table or the maximum value of a column to use as the value of the update.
+
+8. Let's practice!
+Now it's your turn to practice updating data.
+
+
+1. Updating data in a table
+It's also possible to edit update data in a database.
+
+2. Updating data in a table
+This is done using the update statement. The update statement works just like an insert, but it has an additional where clause to determine which records will be updated. The values clause contains only the column=value pairs we want to change.
+
+3. Updating one row
+In this example, I want to make the employee with the ID of 3 an active employee. I start by importing the update statement from sqlalchemy. Next I build an update statement for the employees table that, uses a where clause to target employee 3 and then in the values clause sets them active. Next I execute the statement and print the rowcount to make sure that only 1 employee was updated.
+
+4. Updating multiple rows
+It's possible to update multiple records by having a where clause that would target multiple records. Because this is so easy to do, I always advise you to check the rowcount and make sure the right number of records were updated.
+
+5. Inserting multiple rows
+In this example, we need to set all active employees to be inactive and with a salary of 0. We start by building an update statement for the employees table with a where clause that matches all active employees. Then we update the active and salary columns with the changes. Next we execute the statement and finally print the rowcount to make sure I updated the proper number of employees.
+
+6. Correlated updates
+We have already restored all the employees back to the prior active status and previous salaries, and now we want to pay all our employees the same amount. We start by building a select statement to select the maximum salary we currently pay any employee. Next we build an update statement for the employees table without a where clause so it will update every record. In the values clause we set the salary column to the select statement. When we execute the statement, it will find the maximum salary in the table using the new_salary select statement and that maximum salary will be used as the value for the salary field in the update statement that affects every record in the table. We can see when we print the rowcount that it affected all three employees.
+
+7. Correlated updates
+When you use a select statement to get the value to be used in an update statement as we did in the previous example, this is called a Correlated Update. A correlated update is often used to select data from another table or the maximum value of a column to use as the value of the update.
+
+8. Let's practice!
+Now it's your turn to practice updating data.
+
