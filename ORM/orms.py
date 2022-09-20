@@ -217,8 +217,6 @@ def book_cat():
             'data':df,
             })
 
-
-
 #Books which is famous among users[top 5] 
 @app.route('/top_5/',methods = ['GET'])
 def top_5_famous():
@@ -241,14 +239,23 @@ def top_5_famous():
             })
 
 #update books
-@app.route('/update/',methods = ['PUT'])
-def update_booklist():
-    update_query = session.query(Book).filter_by(book_id=1).update(dict(book_name="Nepali"))
+@app.route('/update_book/',methods = ['PUT'])
+def update_book(): 
+    sql = '''UPDATE book
+        set  book_name ='Jon Doe'
+        WHERE book_id NOT IN (SELECT burrowed_book_id FROM users)'''
+
+    sql1 = '''SELECT * FROM books'''        
+    with engine.connect() as con:
+        query = con.execute(sql)
+        query = con. execute(sql1)
     session.commit()
-    
+    df = pd.DataFrame(query.fetchall())
 
     return jsonify({
-        'msg':'success'})
+        'status':200,
+        'message':'Book Name Updated Successfully'
+        })
 
 
 
