@@ -1,29 +1,14 @@
-# SET 3 (TEAM 3)  Library Management System.
-# Users should be able to add books and their categories such as non-fiction, autobiography, and so on. 
-# A book can belong to more than one category. Add users, each user should have a unique username. 
-# A user can borrow up to 3 books at a time. A user can return any book he has borrowed at any time.  
-# A book’s description, category, name, and author’s name can be updated only  if the book has not been borrowed. 
-# Show total list of books(including count), show total users, 
-# show books on the basis of category given[multiple categories can be provided], 
-# show which book is famous among users[top 5], show which category of book users like most[show top 5].  
-# On the basis of username, find the category of the book he/she prefers.
-import imp
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
 from flask import Flask,jsonify
-from sqlalchemy import text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 import pandas as pd
-#import MySQLdb # pip install mysqlclient
+from sqlalchemy import create_engine,Column,Integer,String
 
 # callling the flask application
 app= Flask(__name__)
 
 # MySQL users:
-
-engine = create_engine('sqlite:///ormss.db')
+engine = create_engine('sqlite:///orms.db')
 # [DB_TYPE]+[DB_
 # cdCONNECTOR]://[USERNAME]:[PASSWORD]@[HOST]:[PORT]/[DB_NAME]
 
@@ -38,23 +23,24 @@ session = Session()
 # create a base clase which is declarative
 Base = declarative_base()
 
+app = Flask(__name__)
+# api 
 @app.route('/api/')
 def index():
     return "Flask API-Application Programming Interface"
 
-class User(Base): # to create the daabase from command line $ from orms import  User
-    __tablename__ = 'users' 
+#users database
+class User(Base):
+    __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False, unique=True)
-    phone = Column(String, nullable=False)
-    email = Column(String, nullable=False)
+    id = Column(Integer,primary_key = True)
+    name = Column(String(60))
     burrowed_book_id = Column(Integer)
-
     def __repr__(self) -> str:
         return super().__repr__()
 
-class Book(Base): # to create the daabase from command line $ from orms import  Book
+#BOOK
+class Book(Base):
     __tablename__ = 'books'
 
     book_id = Column(Integer,primary_key=True)
@@ -62,113 +48,83 @@ class Book(Base): # to create the daabase from command line $ from orms import  
     book_author_name = Column(String(60),nullable = False)
     book_category = Column(String(60),nullable =False)
     book_description = Column(String(255),nullable = False)
-    
+
     def __repr__(self) -> str:
          return super().__repr__()
 
+#create table
 @app.route('/create_table/',methods=['GET'])
 def create_table():
-       Base.metadata.create_all(engine)
-       print(engine.table_names())
-       return jsonify({
-        'status':200,
-        'message':'Table Created Successfully!',
-        'table':engine.table_names()
+        Base.metadata.create_all(engine)
+        return jsonify({
+            'status':200,
+            'message':'Tables Successfully created.',
+            'tables':engine.table_names()
        })
 
-# show users
-@app.route('/show_user/',methods = ['GET'])
-def show_user():
-    query  = session.query(User).filter_by(name='Hari Tribiani')
-    return jsonify({
-        'status':200,
-        'message':'User Found Successully!',
-        })
-
-# show books
-@app.route('/show_book/',methods = ['GET'])
-def show_book():
-    query  = session.query(Book).filter_by(book_name='Hari Tribiani')
-    return jsonify({
-            'status':200,
-            'message':'Book Found Successully!',
-            })
-
-
-# add insert user 
-@app.route('/insert_user/',methods = ['GET','POST'])
+#insert users
+@app.route('/insert_user/',methods = ['GET'])
 def insert_user():
-    query = session.query(User).filter_by(name='Hari Tribiani')
-    count = query.count()
-    user = User(id=count+1,name='Hari Tribiani',phone=9877732,email='adafa@fa.com',burrowed_book_id=40)
-    if count <=2:
-        session.add(user)
+    try:
+        query = session.query(User).filter_by(name='Joey Tribiani')
+        count = query.count()
+        user = User(id=8,name='Joey Tribiani',burrowed_book_id=80)
+        if count<=2:
+            session.add(user)
+            session.commit()
+            return jsonify({
+                'status':200,
+                "message":"User added successfully"
+                })
+        else:
+            return({
+                'status':404,
+                'message':'User have already accessed 3 books'
+                })    
+    except:
+        return({
+            'status':404,
+            'message':'Error'
+            }) 
+
+
+#insert book
+@app.route('/insert_book/<int:book_id>',methods=['GET'])
+def insert_book(book_id):
+    try:
+        books = Book(book_id,book_category='Drama',book_description='Descp of the book.',book_name='Hello World',booK_author_name='Olie Watkins')
+        session.add(books)
         session.commit()
         return jsonify({
-            'status':200,
-            'message':'User Added Successully!',
-            })
-    else:
+            'message':'New Book added to library',
+            'book_id':books.book_id,
+            'book_name':books.book_name,
+            'author':books.book_author_name,
+            'description':books.book_description,
+    })
+    except:
         return jsonify({
             'status':404,
-            'message':'Invalid User!',
+            'message':'Book is already in the list'
             })
 
-#add book to library
-@app.route('/add_book/',methods=['GET'])
-def add_book():
-    insert_query = session.query(Book).filter_by(book_category='Drama and Love')
-    count = insert_query.count()
-    if count !=1:
-        book = Book(book_id=32,book_category='Drama and Love',book_description='Descp of the book.',book_name='Hello World',book_author_name='Olie Watkins')
-        session.add(book)
-        session.commit()
-        return jsonify({
-            'status':200,
-            'message':'New Book added to library',
-            })
-    else:
-        return jsonify({
-            'status':400,
-            'message':'Already in a list'
-            })
 
-@app.route('/insert_book/',methods = ['GET','POST'])
-def insert_book():
-    insert_query = session.query(User).filter_by(name='Ramhari Shrestha')
-    count = insert_query.count()     
-    book = User(name='Ramhari Shrestha',phone=9875533, email='em@asfaf' , burrowed_book_id=80)
-    if count < 3 :
-        session.add(book)
-        session.commit()
-        return jsonify({
-            'status':200,
-            'message':'Book Insetted Successully!',
-
-            })
-    else:
-        return jsonify({
-            'status':400,
-            'message':'Borrowing More Than 3 Book Isnot Allowed!'
-            })
-
-#return books
-@app.route('/return_book/',methods=['GET'])
-def return_book():
+#RETURNED BOOK
+@app.route('/return/<int:book_id>',methods=['GET'])
+def return_book(book_id):
     try:
-        book_id=32
         sql = '''
-            DELETE  FROM users
-            WHERE burrowed_book_id = {0};
-            '''.format(book_id)
+        DELETE  FROM userdetails
+        WHERE burrowed_book_id = {0};
+        '''.format(book_id)
         with engine.connect() as conn:
             query = conn.execute(sql)    
             session.commit()     
             df = pd.DataFrame(query.fetchall())
+    
         return jsonify({
             'status':200,
-            'message':'Book Returned',
-            'data':df,
+            'message':'Book returned'
             })
    
     except:
@@ -177,53 +133,67 @@ def return_book():
             'message':'Error'
             })
         
-
-#book list
-@app.route('/book_list/',methods = ['GET'])
+   
+#book_list
+@app.route('/book_list',methods = ['GET'])
 def book_list():
+    try:
         sql = '''
             SELECT book_name, count(book_name) AS  Number_of_books
-            FROM books
+            FROM book
             GROUP BY  book_name;
             '''
         with engine.connect() as conn:
             query = conn.execute(sql)         
             df = pd.DataFrame(query.fetchall())
             session.commit()
+        
         return jsonify({
-            'status':200,
-            'message':'Book list found',
+                'status':200,
+                'message':'Book returned'
+                })
+    except:
+        return jsonify({
+            'status':404,
+            'message':'Error'
             })
+        
 
 #Show Books According to Catgories   
-@app.route('/book_category/',methods = ['GET'])
-def book_cat():
+@app.route('/category',methods = ['GET'])
+def catagory():
+    try:
         sql = '''
-            SELECT u.name, count(burrowed_book_id) AS Burrowed_book
-            FROM users u
-            LEFT JOIN books b
-            ON u.burrowed_book_id = b.book_id AND b.category IN ('Fantasy and Adventure','Drama')
-            GROUP BY name
-            '''
+        SELECT u.user_name, count(burrowed_book_id) AS Burrowed_books
+        FROM userdetails u
+        LEFT JOIN book b
+        ON u.burrowed_book_id = b.book_id AND b.category IN ('Fantasy and Adventure','Drama')
+        GROUP BY user_name
+        '''
         with engine.connect() as conn:
             query = conn.execute(sql)         
             df = pd.DataFrame(query.fetchall())
             session.commit()
             print(df)
-    
         return jsonify({
             'status':200,
-            'mesasge':'Success',
-            'data':df,
+            'message':"book list"
+            })
+    except:
+        return jsonify({
+            'status':404,
+            'message':'Error'
             })
 
+
 #Books which is famous among users[top 5] 
-@app.route('/top_5/',methods = ['GET'])
-def top_5_famous():
+@app.route('/top_five',methods = ['GET'])
+def top_five():
+    try:
         sql = '''
             SELECT u.user_name, count(burrowed_book_id) AS Burrowed_books, b.category
-            FROM users u
-            LEFT JOIN books b
+            FROM userdetails u
+            LEFT JOIN book b
             ON u.burrowed_book_id = b.book_id
             GROUP BY user_name
             ORDER BY Burrowed_books DESC ;
@@ -232,51 +202,43 @@ def top_5_famous():
             query = conn.execute(sql)         
             df = pd.DataFrame(query.fetchall())
             session.commit()
+            print(df)
+        
         return jsonify({
-            'status':200,
-            'mesasge':'Success',
-            'data':df,
+                'status':200,
+                'message':"book list"
+                })
+    except:
+        return jsonify({
+            'status':404,
+            'message':'Error'
             })
 
-#update books
-@app.route('/update_book/',methods = ['PUT'])
-def update_book(): 
-    sql = '''UPDATE book
-        set  book_name ='Jon Doe'
-        WHERE book_id NOT IN (SELECT burrowed_book_id FROM users)'''
-
-    sql1 = '''SELECT * FROM books'''        
-    with engine.connect() as con:
-        query = con.execute(sql)
-        query = con. execute(sql1)
-    session.commit()
-    df = pd.DataFrame(query.fetchall())
-
-    return jsonify({
-        'status':200,
-        'message':'Book Name Updated Successfully'
-        })
-
-
-
-#delete users
-@app.route('/delete_user/',methods = ['DELETE'])
-def delete_user():
-    delete_query = session.query(User).filter_by(name='Hari Tribiani').delete()
-    session.commit()
-    return jsonify({
-        'Deleted':delete_query
-    })
-
-#delete books
-@app.route('/delete_book/',methods = ['DELETE'])
-def delete_book():
-    delete_query = session.query(User).filter_by(book_category='Drama and Love').delete()
-    session.commit()
-    return jsonify({
-        'Deleted':delete_query
-    })
-
+#update Book 
+@app.route('/update/',methods = ['GET'])
+def update(): 
+    try:
+        sql = '''UPDATE book
+                set  book_name ='Jon Doe'
+                WHERE book_id NOT IN (SELECT burrowed_book_id FROM userdetails)'''
+        sql1 = '''SELECT * FROM book'''        
+        with engine.connect() as con:
+            query = con.execute(sql)
+            query = con. execute(sql1)
+            session.commit()
+            df = pd.DataFrame(query.fetchall())
+            print(df)    
+        
+        return jsonify({
+            'status':200,
+            'message':'Book Name Updated Successfully'
+            })
+    except:
+        return jsonify({
+            'status':404,
+            'message':'Error'
+            })
+     
 
 if __name__ == '__main__':
     app.run(debug=True)
