@@ -1,0 +1,52 @@
+
+1. Census case study
+Okay, it's time to put all your effort so far to good use on a census case study.
+
+2. Census case study
+The case study is broken down into three parts. First, we are going to prepare SQLAlchemy and the database. Next, we will load the data into the database. And finally, we solve a few data science type problems with our query knowledge.
+
+3. Part 1: preparing SQLAlchemy and the database
+For part 1 we are going to focus on preparing SQLAlchemy and the database. You might remember this example from Chapter 1. We import create_engine and Metadata, then create the engine and initialize the metadata.
+
+4. Part 1: preparing SQLAlchemy and the database
+Then we will build the census table to hold our data. You might remember the employees table we built in Chapter 4. We begin by importing the Table and Column objects along with all the types we are going to use in our table. Next we define our Table using the Table object by giving it a name, the metadata object, and then each of the columns we want in our table. Finally we create the table in the database by using the create all method on the metadata with the engine.
+
+5. Let's practice!
+Good luck. Remember to take your time and enjoy the process.
+
+
+1. Populating the database
+With our table in place, we can now load the data into it. The US Census Agency gave us a CSV file full of data that we need to load into the table.
+
+2. Part 2: populating the database
+We'll start that by building a values_list like we did in chapter 4 with this exercise. We begin by defining an empty list then looping over the rows of the CSV. Then we build a dictionary for each CSV row that has the data for that row matched up with the column we want to store it in. Then we append the dictionary to the values list.
+
+3. Part 2: Populating the Database
+Now we can insert that values_list as we did in Chapter 4 like this example. We we start by importing the insert statement. Then we build an insert statement for our table, finally we use the execute method on our connection with the statement and values list to insert the data into the table. To review how many rows were inserted, we use the rowcount method of the ResultProxy.
+
+4. Let's practice!
+Time to get to work.
+
+
+1. Querying the database
+Okay now for the grand finale, we're going to answer the kind of questions you will get asked as a data scientist. We'll be using each of the techniques shown in this video to complete the case study.
+
+2. Part 3: answering data science questions with queries
+Here is an example of how we calculated an average in an exercise from Chapter 3. We began by importing the select statement. Next we built a select statement that creates a weighted average. We do this by summing the result of multiplying the age with the population and dividing that by the sum of the total population and labeling that average age. Next we grouped by the sex column to determine the average age for each sex. Finally, we executed the query and fetched all the results.
+
+3. Part 3: answering data science questions with queries
+We learned how to calculate a percentage by using the case and cast clauses in Chapter 3. We begin by importing case, cast, and Float. Then we build a select statement that calculates the sum of the pop2008 column in cases where the state is New York. Then we divided that by the sum of the total population which is cast to a Float so we would get Decimal values. Finally, we multiplied by 100 to get a percentage and labeled it ny_percent.
+
+4. Part 3: answering data science questions with queries
+Also from Chapter 3, we learned how calculate the difference between two columns grouped by another column. We start by building a select statement, that selects the column we want to determine the change by, which in this case is age. Then we calculate the difference between the population in 2008 and in 2000, and we label that pop_change. Remember to wrap the difference calculation in parentheses so you can label it. Next, we order by pop_change and finally we limit it to just 5 results.
+
+5. Let's practice!
+Now it's your turn to use these techniques in the case study. Good luck!
+
+
+Got It!
+1. Congratulations!
+Congratulations, you made it!
+
+2. Congratulations!
+You've learned the fundamentals of relational databases and can interact with them in many different ways with Python. You are able to perform basic SELECT queries to answer the type questions we get as data scientists! You can also customize your queries with filters to ask more specific questions of your data. You can build advanced queries to perform mathematical operations on your data, join data from different tables and deal with hierarchical tables, all of which arise in real world settings. You have also gained skills to build databases and tables and to insert, update, and delete data in those tables. Everything that you have learned can be used on all types of relational databases from SQLite to PostgreSQL to MySQL. There is always more to learn, and the SQLAlchemy documentation is a good place to go to learn more. Again, Congratulations on completing the course and thank you!

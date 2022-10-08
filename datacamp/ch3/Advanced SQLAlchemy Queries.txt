@@ -1,0 +1,93 @@
+
+1. Calculating values in a query
+Now that you know how to customize your SQL queries using filtering and aggregation functions,
+
+2. Math operators
+it's time to dive deeper by performing typical and useful math operations such as addition, subtraction, multiplication, et cetera on columns in our query. It is import to remember that these operations perform differently with non-numeric data types.
+
+3. Calculating difference
+If we wanted to find the top five age groups by growth between 2000 and 2008, we would start by passing select the age column and then the calculated difference between pop2008 and pop2000 columns. Notice that we wrapped the difference in parenthesis so we can apply the label pop_change to it. Next we're going to group by age and order by the pop_change in descending manner and finally we apply a limit statement to only return the top 5 results. Now we can execute that statement and print the results. That let's us see that the number of 61 and 85 year olds grew quite a bit between those years.
+
+4. Case statement
+Often when we are performing calculations, we want to selectively include data in a calculation based on a set of conditions. The case statement allows us to do just that. The case statement has a list of conditions and a column to return if the condition is meet, and it ends with an else that tells it how to handle those rows without a match.
+
+5. Case example
+Let's take a look at how a case statement works. Before we begin to look at this example, this is just to demonstrate how case works, we could get the same result where a much simpler select statement and a where clause. However, we'll be building on the case statement in the next example to build queries that a where clause cannot perform. We start by importing the case statement from sqlalchemy. Then we build a select statement that include a sum function for a case statement. The case statement begins with a conditional that checks to see if the state is New York, and if that is the case it returns the value of the pop2008 column. Next we have an else clause that returns 0 for any record that does not have the state of New York. Then we execute the statement and print the results.
+
+6. Cast statement
+The cast statement is also useful when we are performing operations and you need to convert a column from one type to another. This is useful for converting integers to floats so we get the expected result when we use it in division. It can also be used to convert strings to dates. The case statement accepts a column or expression and the type to which you want to convert it. Let's combine the case and cast statements in an example.
+
+7. Percentage example
+If we wanted to find what percentage of the total population live in New York. We start by importing case, cast and float. Then we build a select statement where we are selecting a very complex clause. To calculate a percentage, we need sum the 2008 population for all the rows where the state is New York and dividing it by the sum of the total 2008 population and multiple by 100. We do that by calculating the sum of a case statement that returns the pop2008 column if the state is New York and 0 for any other record just like our last example. Then we divide that by the sum of the pop2008 column for all the records. However, we are casting that to a Float so we will get a fractional result when we perform the division. This is important because if we don't covert it, it will perform floor or integer division and we'll get 0 back. Next we multiply that by 100 to get the percentage and label the entire calculation as ny_percent. Next, we can execute that statement and print the results. Notice that we have used a sophisticated SQL query to extract the solution to a very intuitive question from our database: What percentage of the total population lived in New York in 2008?
+
+8. Let's practice!
+Now it's your turn to play!
+
+
+1. SQL relationships
+Tables can be related to one another via columns that act as a bridge between the tables.
+
+2. Relationships
+We use relationships to avoid duplicating data. For example, an employee table might be related to a location table so that we can know which location an employee works at without the need to copy the same location data in every employee's record. Relationships allow us to change the data in one place. Back to our employee to location example, if that location moves to a new building, we'd be able to update the address once in the location table, and every employee related to that location would show the new address. Another way that we might use relationships is to store additional details that we don't need to use as often. These relationships might be predefined in the table.
+
+3. Relationships
+In our census data, we have a census table and a state_fact table that are related by the state name which is found in the state column of the census table and name column of the state_fact table. Let's use this predefined relationship to get the state abbreviation from the state_fact table instead of the name and the population in 2008 for that same record from the census table. This is called a join!
+
+4. Automatic joins
+We build our statement with the column from each table that we desire. Then we can execute the query and print the results. Those results now show each record with the state abbreviation instead of the state name. SQLAlchemy automatically adds the right join clause because it is predefined in the database.
+
+5. Join
+We can use a join clause to add a relationship that isn't necessarily predefined in a query. The join clause takes a related table and an expression that details the relationship. If the relation is predefined in the table, we don't need that expression. The join clause should be placed right after the select statement and prior to any where, order_by or group_by clauses. When we want to build queries that do not select a column from each table but use both tables in other clauses, we have to tell SQLAlchemy what to tables to use in the query.
+
+6. select_from()
+The select_from method of the select statement allows us to do that, and a join clause is passed as the argument to select_from.
+
+7. select_from() example
+In this example, we want to determine the total population in 2000 that was within the 10th Circuit Court jurisdiction. We use our select statement to sum the pop2000 column from the census table, then we append the select_from method to include the census table joined with the state_fact table. Next, we use a where clause to find only the records where the circuit_court column from the state_fact table is 10. After executing the statement, we can print our result.
+
+8. Joining tables without predefined relationship
+So far, we have been using the join statement with a relationship already existing in the database. However, often as a data scientist, we will get tables that have related data, but are not setup with a relationship. To join tables we can give the join clause a Boolean expression that explains how the tables are related. This is the same type of Boolean expression we would use in a where clause. This will only join rows from each table that can be related between the two columns. It also doesn't work if the columns are different types.
+
+9. select_from() example
+Imagine that we want to determine the total population in 2008 that belongs to the East South Central division of the census; the population and location live in different tables; however, this time I have removed the defined relationship between the census and state_fact tables so we can practice working with tables in that manner. We begin by selecting the sum of the pop2000 column from the census table. Next we append a select_from to include the join clause. This time in the join clause we specify the table and a condition that matches rows based on the state column of the census table and the name column of the state_fact table. Finally, we add a where clause to find the records where the census_division_name is East South Central in the state_fact table. Then we execute and print the results.
+
+10. Let's practice!
+I know that this was a lot to take in so it's time for you to learn by doing! It's your turn to practice building SQL queries with joins. Enjoy!
+
+
+1. Working with hierarchical tables
+In addition to tables that join with other tables, there are also tables that join with themselves.
+
+2. Hierarchical tables
+We call these tables self-referential or hierarchical tables. These are commonly used to store organizational charts, geographic data, networks and relationship graphs.
+
+3. Hierarchical tables - example
+Here we have an employees table, which, in addition to having the employee's name and position, also contains an column for their manager. That manager is also an employee and has a record in that table. The table has an undefined relationship between the id column and the manager column.
+
+4. Hierarchical tables - alias()
+In order to use this relationship in a query, we need a way to refer to this table by another name. The alias method allows us to do just that by creating a way to refer to the same table with two unique names.
+
+5. Querying hierarchical data
+Let's get a list of managers and the employees that report to them. To join the employees table using the relationship, we start by using the alias method on the employees table and storing the alias as managers. Now we can use both the name managers and employees to refer to the table. Now we are ready to build our query. We start by selecting the name column from the managers alias and labeling that column as manager. Next we select the name column from the employees table and label it employee. Now we use the select_from method to wrap an explicit join from the employees table to the managers alias. We use the id column from the managers alias with the manager column of the employees table to form the join condition. Next, we order by the managers name. Finally, we execute the statement and review the results. For example, Taft's supervisor here is Harding.
+
+6. group_by and func
+Hierarchical tables can get tricky when performing group_bys or using functions. It's important to think of it as if it were two different tables. You should focus on having the table in the group_by and the alias in the function or vice versa. It's super important to make sure you are using both the alias and the table in the query when using the join otherwise you could cause the query to error or use a lot of resources.
+
+7. Querying hierarchical data
+To practice this let's pretend that we are making next years budgets and we need to know how much salary to allocate for each managers employees. We start by making the managers alias of the employees table. Then we begin building the select statement, we select the managers name and then sum all the employees salaries. Next, we use the same explicit join from the previous example in the select_from. Next, we group by the managers name and finally we execute the query. Notice that we applied the function to the employees table and grouped by the managers alias.
+
+8. Let's practice!
+It's now your turn to try your hand at this tricky challenge.
+
+
+1. Handling large ResultSets
+So what do we do when we have really complex queries with large result sets?
+
+2. Dealing with large ResultSets
+Dealing with large result sets can be problematic, as we might run out of memory or disk space to store the results. Thankfully, SQLAlchemy has a fetchmany method that allows us to retrieve results so many at a time. It works by passing the number of records we want at once to the fetchmany method and using the method in a loop. When there are no more records, fetchmany will return an empty list. Because the result proxy does not know when we are done calling fetchmany, we must call the close method on the result proxy when we are done. Let's look at an example.
+
+3. Fetching many rows
+I want to count how many results we have for each state; however, we have a HUGE table so I need to work in smaller groups of records with fetchmany. We're going to do this in a while loop. Recall that while loops will check to see if a variable or expression is true and if so, it will continue running a loop. When the condition is false, the loop stops executing. In this example, we already have set more_results to be True, we also started a state_count dictionary to hold the count for each state, and we have already executed the query and stored the results proxy as results_proxy. We start the while loop by checking to see if more_results is True. Then inside the loop, we fetch 50 records from the results proxy and store that as partial_results. We immediately follow that up by checking to see if partial_results is an empty list. Remember that is how we know there are no more records to fetch. If it is an empty list, we update more_results to be False so we will exit the loop. Next we loop over the partial_results and increment the state_count for that records state by one. So that will keep running until we get an empty list back from fetchmany and exit the while loop. Once we exit the while loop, we close the results_proxy so the database and SQLAlchemy know we are done with the large result set.
+
+4. Let's practice!
+Now it's you're turn to write queries while handling a large ResultSet.
